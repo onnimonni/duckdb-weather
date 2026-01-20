@@ -8,6 +8,7 @@
 #include "duckdb/optimizer/optimizer_extension.hpp"
 #include "gfs_forecast_function.hpp"
 #include "grib_function.hpp"
+#include "met_forecast_function.hpp"
 #include "weather_function.hpp"
 
 namespace duckdb {
@@ -29,6 +30,9 @@ static void LoadInternal(ExtensionLoader &loader) {
 
   // Register gfs_forecast() table function with filter pushdown
   RegisterGfsForecastFunction(loader);
+
+  // Register met_forecast() table function for MET Norway API
+  RegisterMetForecastFunction(loader);
 
   // Register weather utility macros (kelvin_to_celsius, wind_speed, etc.)
   RegisterWeatherFunction(loader);

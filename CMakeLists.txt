@@ -50,6 +50,7 @@ set(EXTENSION_SOURCES
     src/weather_extension.cpp
     src/grib_function.cpp
     src/gfs_forecast_function.cpp
+    src/met_forecast_function.cpp
     src/weather_function.cpp
 )
 

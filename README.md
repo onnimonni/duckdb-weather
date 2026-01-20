@@ -325,9 +325,52 @@ duckdb -unsigned -f scripts/weather_pipeline.sql
 
 The pipeline:
 
-1. Fetches 11 forecast hours (0h to 16 days) directly from NOAA via HTTP
+1. Fetches forecast hours directly from NOAA via HTTP
 2. Converts to H3-indexed parquet (resolution 5 = ~8.5km)
-3. Uploads to Hetzner WebDAV storage
+3. Combines into single file with high compression
+
+### Global Pipeline
+
+For global data, use the auto-detecting pipeline:
+
+```bash
+duckdb -unsigned -f scripts/weather_pipeline_auto.sql
+```
+
+This automatically chooses the optimal strategy based on available resources:
+
+| Memory | Disk | Strategy | Time |
+| ------ | ---- | -------- | ---- |
+| < 2 GB | any | Error (insufficient) | - |
+| 2-5 GB | < 1 GB | Streaming (download per band) | ~50 min |
+| 2-5 GB | >= 1 GB | Partitioned (download once, bands) | ~6 min |
+| >= 5 GB | >= 1 GB | Direct (single pass) | ~2 min |
+
+### Memory Usage by Thread Count
+
+Direct mode memory scales linearly with threads (~4-5 GB per thread):
+
+| Threads | Peak Memory | Processing Time |
+| ------- | ----------- | --------------- |
+| 1 | ~5 GB | 160 sec |
+| 2 | ~10 GB | 86 sec |
+| 4 | ~16 GB | 86 sec |
+
+The pipeline auto-calculates optimal thread count: `memory / 4GB` (max 8).
+
+To measure peak memory usage yourself:
+
+```bash
+/usr/bin/time -l duckdb -unsigned -f scripts/weather_pipeline_auto.sql 2>&1 | grep "maximum resident"
+```
+
+### Design Principle: Prefer Disk Over HTTP
+
+The pipeline uses intermediate parquet files rather than re-downloading data:
+
+- Intermediate parquet (~400 MB) is cheaper than 10x HTTP round-trips
+- Each GRIB download has network latency; local parquet reads are instant
+- Trade ~1 GB disk space for 10x faster processing
 
 ## Data Sources
 

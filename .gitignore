@@ -5,3 +5,27 @@ configure
 duckdb_unittest_tempdir
 /test/bin
 venv
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
+# Data files
+*.parquet
+*.parquet-backup
+
+# Environment config
+.envrc
+
+# Local docs (converted to GitHub issues)
+DESIGN.md
+GOAL.md
+SPEC.md
+TODO.md
+SOURCES.md

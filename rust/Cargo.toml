@@ -1,0 +1,15 @@
+[package]
+name = "grib2_ffi"
+version = "0.1.0"
+edition = "2021"
+description = "GRIB2 parsing library with C FFI for DuckDB weather extension"
+
+[lib]
+crate-type = ["staticlib"]
+name = "grib2_ffi"
+
+[dependencies]
+grib = "0.7"
+
+[profile.release]
+lto = true
